@@ -1,9 +1,13 @@
 %include 'general.asm'
+%include 'http.asm'
 
 SECTION .data
 msg db 'Server has started', 0h
 res db 'HTTP/1.1 200 OK', 0Dh, 0Ah, 'Content-Type: text/html', 0Dh, 0Ah, 'Content-Length: 14', 0Dh, 0Ah, 0Dh, 0Ah, 'Hello World!', 0Dh, 0Ah, 0h
 len equ $ - res
+
+SECTION .bss
+    response resb 255
 
 SECTION .text
 global _start
@@ -61,7 +65,7 @@ _listen:
 
     push eax 
     mov eax, msg
-    call sprint
+    call sprintLF
     pop eax
 
 ; void accept()
@@ -95,11 +99,33 @@ _fork:
 ; Sends message to connection
 
 _write:
-    mov edx, len
-    mov ecx, res
+    mov edx, 255
+    mov ecx, response
     mov ebx, esi
-    mov eax, 4
+    mov eax, 4 
     int 80h
+
+; void read()
+; Read message from client 
+
+_read: 
+    mov edx, 255
+    mov ecx, response
+    mov ebx, esi
+    mov eax, 3
+    int 80h
+
+    mov eax, response
+    call sprintLF
+
+; int printProtocol() 
+;   eax - 0 to 4 what request method
+; Print what request method
+
+_printProtocol:
+    mov eax, response
+    call getRequestType
+    call iprintLF
 
 _exit:
 
