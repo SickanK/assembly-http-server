@@ -1,2 +1,2 @@
 # assembly-http-server
-A http server written in NASM x86 Assembly
+An HTTP server that's written in x86 NASM Assembler
