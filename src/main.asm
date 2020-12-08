@@ -2,12 +2,12 @@
 %include 'http.asm'
 
 SECTION .data
-msg db 'Server has started', 0h
+msg db 'Server has started on port 8080', 0h
 res db 'HTTP/1.1 200 OK', 0Dh, 0Ah, 'Content-Type: text/html', 0Dh, 0Ah, 'Content-Length: 14', 0Dh, 0Ah, 0Dh, 0Ah, 'Hello World!', 0Dh, 0Ah, 0h
 len equ $ - res
 
 SECTION .bss
-    response resb 255
+    response resb 4010
 
 SECTION .text
 global _start
@@ -16,6 +16,8 @@ _start:
 
     xor eax, eax
     xor ebx, ebx
+    xor ecx, ecx
+    xor edx, edx
     xor edi, edi
     xor esi, esi
  
@@ -37,7 +39,6 @@ _create:
 ; Bind socket to the ip address 0.0.0.0 and port 8080 
 
 _bind:
-
     mov edi, eax
     push dword 0x0000000
     push word 0x901F
@@ -55,7 +56,6 @@ _bind:
 ; Listens for a connection
 
 _listen:
-
     push byte 4
     push edi
     mov ecx, esp
@@ -72,7 +72,6 @@ _listen:
 ; Accepts a socket connection
 
 _accept:
-    
     push byte 0
     push byte 0
     push edi 
@@ -109,12 +108,12 @@ _write:
 ; Read message from client 
 
 _read: 
-    mov edx, 255
+    mov edx, 4010
     mov ecx, response
     mov ebx, esi
     mov eax, 3
     int 80h
-
+    
     mov eax, response
     call sprintLF
 
@@ -125,10 +124,27 @@ _read:
 _printProtocol:
     mov eax, response
     call getRequestType
-    call iprintLF
+
+_analyzeProtocol:
+    cmp eax, 2
+    je _printMessage
+
+    cmp eax, 3
+    je _printMessage
+
+    jmp _exit
+    
+
+_printMessage:
+    mov eax, response
+    call getMessage
+    call sprintLF
+
+    mov eax, response
+    call getResource
+    call sprintLF
 
 _exit:
-
    mov ebx, 0
    mov eax, 1
    int 80h
