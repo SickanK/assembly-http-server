@@ -131,7 +131,10 @@ getRequestType:
 
 getResource:
     push ebx
+    push edx
     xor ebx, ebx
+    xor ecx, ecx
+    mov edx, eax
 
 .resourceLoop1:
     mov bl, byte [eax]
@@ -150,13 +153,65 @@ getResource:
     je .return
 
     inc eax
+    inc ecx
 
     jmp .resourceLoop2
 
 .return:
+    mov byte [eax], 0h
+    sub eax, ecx
     pop ebx 
+    pop edx 
     ret
 
+; string getVersion() ->
+; eax - message
+; Return versio
+
+getVersion:
+    push ebx
+    push edx
+    push esi
+    xor esi, esi
+    xor ebx, ebx
+    xor ecx, ecx
+    mov edx, eax
+    jmp .versionLoop1
+
+.incrementSpace:
+    inc esi
+
+.versionLoop1:
+    
+    cmp esi, 2
+    je .versionLoop2
+
+    mov bl, byte [eax]
+    inc eax
+
+    cmp bl, 20h
+    je .incrementSpace
+
+    jmp .versionLoop1
+
+.versionLoop2:
+    mov bl, byte [eax]
+
+    cmp bl, 0Dh
+    je .return
+
+    inc eax
+    inc ecx
+
+    jmp .versionLoop2
+
+.return:
+    mov byte [eax], 0h
+    sub eax, ecx
+    pop ebx 
+    pop edx 
+    pop esi 
+    ret
 
 ; string getMessage() ->
 ; eax - message
@@ -191,3 +246,52 @@ getMessage:
     pop ebx 
     ret
 
+
+ string getHeaders() ->
+ stack - headers
+ Return headers
+
+;getHeaders:
+    ;push ebx
+    ;push edx
+    ;push esi
+    ;xor esi, esi
+    ;xor ebx, ebx
+    ;xor ecx, ecx
+    ;mov edx, eax
+    ;jmp .headersLoop1
+
+;.incrementSpace:
+    ;inc esi
+
+;.headersLoop1:
+    
+    ;cmp esi, 6
+    ;je .headersLoop2
+
+    ;mov bl, byte [eax]
+    ;inc eax
+
+    ;cmp bl, 20h
+    ;je .incrementSpace
+
+    ;jmp .headersLoop1
+
+;.headersLoop2:
+    ;mov bl, byte [eax]
+
+    ;cmp bl, 0Dh
+    ;je .return
+
+    ;inc eax
+    ;inc ecx
+
+    ;jmp .headersLoop2
+
+;.return:
+    ;mov byte [eax], 0h
+    ;sub eax, ecx
+    ;pop ebx 
+    ;pop edx 
+    ;pop esi 
+    ;ret

@@ -8,6 +8,7 @@ len equ $ - res
 
 SECTION .bss
     response resb 4010
+    cachedResponse resb 4010
 
 SECTION .text
 global _start
@@ -133,15 +134,27 @@ _analyzeProtocol:
     je _printMessage
 
     jmp _exit
-    
 
 _printMessage:
+    push eax
+
     mov eax, response
     call getMessage
     call sprintLF
 
+    pop eax
+    call iprintLF
+
+    mov eax, response
+    call getVersion
+    call sprintLF
+
     mov eax, response
     call getResource
+    call sprintLF
+
+    mov eax, response
+    call getHeaders
     call sprintLF
 
 _exit:

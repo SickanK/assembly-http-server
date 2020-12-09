@@ -5,8 +5,8 @@ main:
 	ld -m elf_i386 main.o -o main
 
 debug:
-	nasm -f elf -g -I ./src -F dwarf -o ./main.o ./src/main.asm
-	ld -m elf_i386 main.o -o main
+	nasm -f elf -g -I ./src -F dwarf -o ./main.o ./src/main.asm 
+	ld -m elf_i386 -o main main.o 
 
 clean:
 	rm -rf main.o main
