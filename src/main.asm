@@ -3,8 +3,6 @@
 
 SECTION .data
 msg db 'Server has started on port 8080', 0h
-res db 'HTTP/1.1 200 OK', 0Dh, 0Ah, 'Content-Type: text/html', 0Dh, 0Ah, 'Content-Length: 14', 0Dh, 0Ah, 0Dh, 0Ah, 'Hello World!', 0Dh, 0Ah, 0h
-len equ $ - res
 
 SECTION .bss
     response resb 4010
@@ -139,7 +137,7 @@ _printMessage:
     push eax
 
     mov eax, response
-    call getMessage
+    call getBody
     call sprintLF
 
     pop eax

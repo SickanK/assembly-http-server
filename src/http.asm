@@ -213,11 +213,11 @@ getVersion:
     pop esi 
     ret
 
-; string getMessage() ->
-; eax - message
-; Return message from POST or PUT request
+; string getBody() ->
+; eax - body
+; Return body from POST or PUT request
 
-getMessage:
+getBody:
     push ebx
     xor ebx, ebx
 
@@ -247,51 +247,53 @@ getMessage:
     ret
 
 
- string getHeaders() ->
- stack - headers
- Return headers
+;string getHeaders() ->
+;stack - headers
+;Return headers
 
-;getHeaders:
-    ;push ebx
-    ;push edx
-    ;push esi
-    ;xor esi, esi
-    ;xor ebx, ebx
-    ;xor ecx, ecx
-    ;mov edx, eax
-    ;jmp .headersLoop1
+getHeaders:
+    push ebx
+    push ecx
+    push edx
 
-;.incrementSpace:
-    ;inc esi
+    ; holds bytes of eax
+    xor ebx, ebx
+    xor edx, edx
 
-;.headersLoop1:
-    
-    ;cmp esi, 6
-    ;je .headersLoop2
+.charLoop1:
+    mov bl, byte[eax]
+    inc eax 
+    inc edx
 
-    ;mov bl, byte [eax]
-    ;inc eax
+    cmp bl, 0Ah
+    je .printResult
 
-    ;cmp bl, 20h
-    ;je .incrementSpace
+    jmp .charLoop1
 
-    ;jmp .headersLoop1
+.printResult:
+    push eax
+    sub eax, 2
+    mov bl, byte[eax]
+    mov eax, ebx
+    call iprintLF
+    pop eax
 
-;.headersLoop2:
-    ;mov bl, byte [eax]
+    mov byte [eax], 0h
 
-    ;cmp bl, 0Dh
-    ;je .return
+    inc eax
+    inc edx
+    mov bl, byte[eax]
 
-    ;inc eax
-    ;inc ecx
+    cmp bl, 0Ah
+    je .return
 
-    ;jmp .headersLoop2
+    jmp .charLoop1
 
-;.return:
-    ;mov byte [eax], 0h
-    ;sub eax, ecx
-    ;pop ebx 
-    ;pop edx 
-    ;pop esi 
-    ;ret
+.return:
+    sub eax, edx
+    call sprintLF
+
+    pop ebx
+    pop ecx
+    pop edx
+    ret
